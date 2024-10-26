@@ -5,6 +5,7 @@
         <g:set var="layoutName" value="${grailsApplication.config.quartz?.monitor?.layout}" />
         <meta name="layout" content="${layoutName ?: 'main'}" />
         <title>Quartz Jobs</title>
+        <asset:javascript src="jquery-3.5.1.js"/>
         <asset:javascript src="quartz-monitor.js"/>
         <asset:stylesheet src="quartz-monitor.css"/>
         <g:if test="${grailsApplication.config.getProperty("quartz.monitor.showCountdown", Boolean, true)}">

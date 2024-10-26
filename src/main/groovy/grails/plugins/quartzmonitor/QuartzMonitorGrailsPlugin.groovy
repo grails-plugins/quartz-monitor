@@ -1,9 +1,8 @@
 package grails.plugins.quartzmonitor
 
-import grails.plugins.*
 import grails.plugins.quartz.QuartzMonitorJobFactory
 
-class QuartzMonitorGrailsPlugin extends Plugin {
+class QuartzMonitorGrailsPlugin {
 
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "5.3.6 > *"
@@ -12,12 +11,11 @@ class QuartzMonitorGrailsPlugin extends Plugin {
             "grails-app/views/error.gsp"
     ]
 
-    // TODO Fill in these fields
     def title = "Quartz Monitoring" // Headline display name of the plugin
     def author = "Arjang Chinichian"
     def authorEmail = "arjangch@gmail.com"
     def description = '''\
-a copy of quartz-monitor 
+a copy of quartz-monitor but adapted to Grails 5.3.6
 '''
     def profiles = ['web']
 
@@ -47,12 +45,12 @@ a copy of quartz-monitor
 //        {->
 //            // TODO Implement runtime spring config (optional)
 //        }
-//        quartzJobFactory(QuartzMonitorJobFactory) {
-//            if (manager?.hasGrailsPlugin("hibernate") || manager?.hasGrailsPlugin("hibernate4")) {
-//                sessionFactory = ref("sessionFactory")
-//            }
-//            pluginManager = ref("pluginManager")
-//        }
+        quartzJobFactory(QuartzMonitorJobFactory) {
+            if (manager?.hasGrailsPlugin("hibernate") || manager?.hasGrailsPlugin("hibernate4")) {
+                sessionFactory = ref("sessionFactory")
+            }
+            pluginManager = ref("pluginManager")
+        }
     }
 
     void doWithDynamicMethods() {
