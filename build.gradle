@@ -1,55 +1,25 @@
 buildscript {
-    ext {
-        grailsVersion = project.grailsVersion
-    }
     repositories {
         mavenLocal()
+        maven { url "https://plugins.gradle.org/m2/" }
         maven { url "https://repo.grails.org/grails/core" }
     }
     dependencies {
-        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+        classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.4"
     }
 }
 
-plugins {
-    id "io.spring.dependency-management" version "0.5.2.RELEASE"
-    id "com.jfrog.bintray" version "1.5"
-}
-
-version "1.3"
+version projectVersion
 group "org.grails.plugins"
 
+apply plugin:"eclipse"
+apply plugin:"idea"
+apply plugin:"org.grails.grails-plugin"
+apply plugin:"asset-pipeline"
+apply plugin:"org.grails.grails-gsp"
 apply plugin: 'maven-publish'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: "spring-boot"
-apply plugin: "org.grails.grails-plugin"
-apply plugin: "org.grails.grails-gsp"
-// Used for publishing to central repository, remove if not needed
-apply from:'https://raw.githubusercontent.com/grails/grails-profile-repository/master/profiles/plugin/templates/grailsCentralPublishing.gradle'
-apply from:'https://raw.githubusercontent.com/grails/grails-profile-repository/master/profiles/plugin/templates/bintrayPublishing.gradle'
-
-ext {
-    grailsVersion = project.grailsVersion
-    gradleWrapperVersion = project.gradleWrapperVersion
-}
-
-bintray {
-    pkg {
-        userOrg = ''
-        name = "org.grails.plugins:$project.name"
-        issueTrackerUrl = "https://github.com/jamescookie/$project.name/issues"
-        vcsUrl = "https://github.com/jamescookie/$project.name"
-        version {
-            attributes = ['grails-plugin': "jamescookie.plugins:$project.name"]
-            name = project.version
-        }
-    }
-}
-
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
-
+apply from: layout.projectDirectory.file('gradle/publishing.gradle')
 
 repositories {
     mavenLocal()
@@ -57,31 +27,84 @@ repositories {
     maven { url "https://repo.grails.org/grails/core" }
 }
 
-dependencyManagement {
-    imports {
-        mavenBom "org.grails:grails-bom:$grailsVersion"
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
     }
-    applyMavenExclusions false
 }
 
 dependencies {
-    provided 'org.springframework.boot:spring-boot-starter-logging'
-    provided "org.springframework.boot:spring-boot-starter-actuator"
-    provided "org.springframework.boot:spring-boot-autoconfigure"
-    provided "org.springframework.boot:spring-boot-starter-tomcat"
-
-    provided "org.grails:grails-web-boot"
-    provided "org.grails:grails-dependencies"
-    provided 'javax.servlet:javax.servlet-api:3.1.0'
-
-    compile "org.grails.plugins:quartz:2.0.0.M4"
-    compile "org.grails.plugins:asset-pipeline:$grailsVersion"
-
-    testCompile "org.grails:grails-plugin-testing"
-
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    compileOnly "io.micronaut:micronaut-inject-groovy"
     console "org.grails:grails-console"
+    implementation "org.springframework.boot:spring-boot-starter-logging"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.grails:grails-core"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-tomcat"
+    implementation "org.grails:grails-web-boot"
+    implementation "org.grails:grails-logging"
+    implementation "org.grails:grails-plugin-rest"
+    implementation "org.grails:grails-plugin-databinding"
+    implementation "org.grails:grails-plugin-i18n"
+    implementation "org.grails:grails-plugin-services"
+    implementation "org.grails:grails-plugin-url-mappings"
+    implementation "org.grails:grails-plugin-interceptors"
+    implementation "org.grails.plugins:cache"
+    implementation "org.grails.plugins:async"
+    implementation "org.grails.plugins:scaffolding"
+    implementation "org.grails.plugins:gsp"
+    profile "org.grails.profiles:web-plugin"
+    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.4"
+    testImplementation "io.micronaut:micronaut-inject-groovy"
+    testImplementation "org.grails:grails-gorm-testing-support"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "org.grails:grails-web-testing-support"
+
+    // quartz translator https://www.freeformatter.com/cron-expression-generator-quartz.html
+    // Quartz scheduler
+    // http://www.quartz-scheduler.org/api/2.3.0/index.html
+    // http://www.quartz-scheduler.org/documentation/quartz-2.3.0/
+    // http://www.quartz-scheduler.org/documentation/
+    implementation("org.quartz-scheduler:quartz:2.3.2") {
+        exclude group: 'slf4j-api', module: 'c3p0'
+    }
+    // Quartz
+    // https://grails-plugins.github.io/grails-quartz/latest/
+    implementation "org.grails.plugins:quartz:2.0.13"
+
+    // for future upgrade to grails 7
+    //    implementation 'org.grails.plugins:quartz:4.0.0-SNAPSHOT'
+
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = gradleWrapperVersion
+bootRun {
+    ignoreExitValue true
+    jvmArgs(
+        '-Dspring.output.ansi.enabled=always', 
+        '-noverify', 
+        '-XX:TieredStopAtLevel=1',
+        '-Xmx1024m')
+    sourceResources sourceSets.main
+    String springProfilesActive = 'spring.profiles.active'
+    systemProperty springProfilesActive, System.getProperty(springProfilesActive)
+}
+
+tasks.withType(GroovyCompile) {
+    configure(groovyOptions) {
+        forkOptions.jvmArgs = ['-Xmx1024m']
+    }
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
+// enable if you wish to package this plugin as a standalone application
+bootJar.enabled = false
+
+
+assets {
+    packagePlugin = true
 }
