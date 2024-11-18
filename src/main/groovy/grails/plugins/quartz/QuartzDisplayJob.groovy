@@ -1,6 +1,7 @@
 package grails.plugins.quartz
 
 import grails.plugins.GrailsVersionUtils
+import grails.plugins.quartz.GrailsJobFactory
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException

@@ -1,110 +1,81 @@
 buildscript {
     repositories {
         mavenLocal()
-        maven { url "https://plugins.gradle.org/m2/" }
-        maven { url "https://repo.grails.org/grails/core" }
+        gradlePluginPortal()
+        mavenCentral()
+        maven { url "https://repo.grails.org/grails/core/" }
+        maven { url "https://repository.apache.org/content/repositories/snapshots"}
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.4"
     }
 }
 
-version projectVersion
-group "org.grails.plugins"
+plugins {
+        id "groovy"
+        id "org.grails.grails-web"
+        id "org.grails.grails-gsp"
+        id "war"
+        id "idea"
+        id "com.bertramlabs.asset-pipeline" version "5.0.1"
+        id "org.grails.grails-plugin"
+        id "eclipse"
+}
 
-apply plugin:"eclipse"
-apply plugin:"idea"
-apply plugin:"org.grails.grails-plugin"
-apply plugin:"asset-pipeline"
-apply plugin:"org.grails.grails-gsp"
+version projectVersion
+group = "org.grails.plugins"
+
 apply plugin: 'maven-publish'
 apply from: layout.projectDirectory.file('gradle/publishing.gradle')
 
 repositories {
     mavenLocal()
     mavenCentral()
-    maven { url "https://repo.grails.org/grails/core" }
-}
-
-configurations {
-    developmentOnly
-    runtimeClasspath {
-        extendsFrom developmentOnly
-    }
+    maven { url "https://repo.grails.org/grails/core/" }
+    maven { url "https://repository.apache.org/content/repositories/snapshots"}
 }
 
 dependencies {
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-    compileOnly "io.micronaut:micronaut-inject-groovy"
-    console "org.grails:grails-console"
-    implementation "org.springframework.boot:spring-boot-starter-logging"
-    implementation "org.springframework.boot:spring-boot-starter-validation"
-    implementation "org.springframework.boot:spring-boot-autoconfigure"
-    implementation "org.grails:grails-core"
-    implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation "org.springframework.boot:spring-boot-starter-tomcat"
-    implementation "org.grails:grails-web-boot"
-    implementation "org.grails:grails-logging"
-    implementation "org.grails:grails-plugin-rest"
-    implementation "org.grails:grails-plugin-databinding"
-    implementation "org.grails:grails-plugin-i18n"
-    implementation "org.grails:grails-plugin-services"
-    implementation "org.grails:grails-plugin-url-mappings"
-    implementation "org.grails:grails-plugin-interceptors"
-    implementation "org.grails.plugins:cache"
-    implementation "org.grails.plugins:async"
-    implementation "org.grails.plugins:scaffolding"
-    implementation "org.grails.plugins:gsp"
-    profile "org.grails.profiles:web-plugin"
-    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.4"
-    testImplementation "io.micronaut:micronaut-inject-groovy"
-    testImplementation "org.grails:grails-gorm-testing-support"
-    testImplementation "org.mockito:mockito-core"
-    testImplementation "org.grails:grails-web-testing-support"
+    profile("org.grails.profiles:web-plugin")
+    implementation("org.grails:grails-core")
+    implementation("org.grails:grails-logging")
+    implementation("org.grails:grails-plugin-databinding")
+    implementation("org.grails:grails-plugin-i18n")
+    implementation("org.grails:grails-plugin-interceptors")
+    implementation("org.grails:grails-plugin-rest")
+    implementation("org.grails:grails-plugin-services")
+    implementation("org.grails:grails-plugin-url-mappings")
+    implementation("org.grails:grails-web-boot")
+    implementation("org.grails.plugins:gsp")
+    implementation("org.grails.plugins:hibernate5")
+    implementation("org.grails.plugins:scaffolding")
+    implementation("org.sitemesh:grails-plugin-sitemesh3:7.0.0-SNAPSHOT")
+    implementation("org.springframework.boot:spring-boot-autoconfigure")
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-logging")
+    implementation("org.springframework.boot:spring-boot-starter-tomcat")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    console("org.grails:grails-console")
+    runtimeOnly("com.bertramlabs.plugins:asset-pipeline-grails")
+    runtimeOnly("com.h2database:h2")
+    runtimeOnly("org.apache.tomcat:tomcat-jdbc")
+    runtimeOnly("org.fusesource.jansi:jansi")
+    testImplementation("org.grails:grails-gorm-testing-support")
+    testImplementation("org.grails:grails-web-testing-support")
+    testImplementation("org.spockframework:spock-core")
 
-    // quartz translator https://www.freeformatter.com/cron-expression-generator-quartz.html
-    // Quartz scheduler
-    // http://www.quartz-scheduler.org/api/2.3.0/index.html
-    // http://www.quartz-scheduler.org/documentation/quartz-2.3.0/
-    // http://www.quartz-scheduler.org/documentation/
-    implementation("org.quartz-scheduler:quartz:2.3.2") {
-        exclude group: 'slf4j-api', module: 'c3p0'
-    }
-    // Quartz
-    // https://grails-plugins.github.io/grails-quartz/latest/
-    implementation "org.grails.plugins:quartz:2.0.13"
-
-    // for future upgrade to grails 7
-    //    implementation 'org.grails.plugins:quartz:4.0.0-SNAPSHOT'
+    implementation 'org.grails.plugins:quartz:4.0.0-SNAPSHOT'
 
 }
 
-bootRun {
-    ignoreExitValue true
-    jvmArgs(
-        '-Dspring.output.ansi.enabled=always', 
-        '-noverify', 
-        '-XX:TieredStopAtLevel=1',
-        '-Xmx1024m')
-    sourceResources sourceSets.main
-    String springProfilesActive = 'spring.profiles.active'
-    systemProperty springProfilesActive, System.getProperty(springProfilesActive)
-}
-
-tasks.withType(GroovyCompile) {
-    configure(groovyOptions) {
-        forkOptions.jvmArgs = ['-Xmx1024m']
-    }
-}
+compileJava.options.release = 17
 
 tasks.withType(Test) {
     useJUnitPlatform()
 }
-// enable if you wish to package this plugin as a standalone application
-bootJar.enabled = false
-
-
 assets {
     packagePlugin = true
+    minifyJs = true
+    minifyCss = true
 }

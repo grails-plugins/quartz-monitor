@@ -1,7 +1,6 @@
 package grails.plugins.quartz
 
 import org.quartz.spi.TriggerFiredBundle
-
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 

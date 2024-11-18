@@ -2,7 +2,8 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <g:set var="layoutName" value="${grailsApplication.config.quartz?.monitor?.layout}" />
+%{--        <g:set var="layoutName" value="${grailsApplication.config.quartz?.monitor?.layout}" />--}%
+        <g:set var="layoutName" value="${grailsApplication.config.getProperty("quartz.monitor.layout")}" />
         <meta name="layout" content="${layoutName ?: 'main'}" />
         <title>Quartz Jobs</title>
         <asset:javascript src="jquery-3.5.1.js"/>
@@ -43,7 +44,7 @@
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <g:if test="${grailsApplication.config.quartz.monitor.showTriggerNames}">
+                            <g:if test="${grailsApplication.config.getProperty("quartz.monitor.showTriggerNames", Boolean, true)}">
                                 <th>Trigger Name</th>
                             </g:if>
                             <th>Last Run</th>
@@ -56,11 +57,12 @@
                     <g:each in="${jobs}" status="i" var="job">
                         <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                             <td>${job.name}</td>
-                            <g:if test="${grailsApplication.config.quartz.monitor.showTriggerNames}">
+                            <g:if test="${grailsApplication.config.getProperty("quartz.monitor.showTriggerNames", Boolean, true)}">
                                 <td>${job.trigger?.name}</td>
                             </g:if>
-                            <g:set var="tooltip">${(job.error ? "Job threw exception: " + job.error + ". " : "") + (job.duration >= 0 ? "Job ran in: " + job.duration + "ms" : "")}</g:set>
-                            <td class="quartz-tooltip quartz-status ${job.status?:"not-run"}" data-tooltip="${tooltip}">${job.lastRun}</td>
+                            <g:set var="tooltip">${((job.triggerStatus != Trigger.TriggerState.ERROR)? "Job threw exception: " + job.triggerStatus + ". " : "") + (job.duration >= 0 ? "Job ran in: " + job.duration + "ms" : "")}</g:set>
+
+                            <td class="quartz-tooltip quartz-status ${(job.triggerStatus == Trigger.TriggerState.ERROR)?:"not-run"}" data-tooltip="${tooltip}">${job.trigger?.getPreviousFireTime()}</td>
                             <td class="quartz-to-hide">${tooltip}</td>
                             <g:if test="${schedulerInStandbyMode || job.triggerStatus == Trigger.TriggerState.PAUSED}">
                                 <td class="hasCountdown countdown_amount">Paused</td>

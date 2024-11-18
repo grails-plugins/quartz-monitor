@@ -1,12 +1,12 @@
-package grails.plugins.quartz
+package grails.plugin.quartz
 
-import static org.quartz.impl.matchers.GroupMatcher.jobGroupEquals
-
+import grails.plugins.quartz.QuartzMonitorJobFactory
 import org.quartz.CronTrigger
 import org.quartz.Scheduler
 import org.quartz.Trigger
 import org.quartz.TriggerKey
 import org.quartz.impl.matchers.GroupMatcher
+import static org.quartz.impl.matchers.GroupMatcher.jobGroupEquals
 
 class QuartzController {
 
@@ -21,12 +21,12 @@ class QuartzController {
     def list() {
         def jobsList = []
         def listJobGroups = quartzScheduler.jobGroupNames
-        listJobGroups?.each { jobGroup ->
-            quartzScheduler.getJobKeys(jobGroupEquals(jobGroup))?.each { jobKey ->
+        listJobGroups?.each {jobGroup ->
+            quartzScheduler.getJobKeys(jobGroupEquals(jobGroup))?.each {jobKey ->
                 def jobName = jobKey.name
                 List<Trigger> triggers = quartzScheduler.getTriggersOfJob(jobKey)
                 if (triggers) {
-                    triggers.each { trigger ->
+                    triggers.each {trigger ->
                         def currentJob = createJob(jobGroup, jobName, jobsList, trigger.key.name)
                         currentJob.trigger = trigger
                         def state = quartzScheduler.getTriggerState(trigger.key)
