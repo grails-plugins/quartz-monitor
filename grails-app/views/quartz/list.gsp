@@ -43,7 +43,9 @@
                 <table id="quartz-jobs">
                     <thead>
                         <tr>
-                            <th>Name</th>
+                            <g:if test="${grailsApplication.config.getProperty("quartz.monitor.showJobNames", Boolean, true)}">
+                                <th>Name</th>
+                            </g:if>
                             <g:if test="${grailsApplication.config.getProperty("quartz.monitor.showTriggerNames", Boolean, true)}">
                                 <th>Trigger Name</th>
                             </g:if>
@@ -56,7 +58,9 @@
                     <tbody>
                     <g:each in="${jobs}" status="i" var="job">
                         <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-                            <td>${job.name}</td>
+                            <g:if test="${grailsApplication.config.getProperty("quartz.monitor.showJobNames", Boolean, true)}">
+                                <td>${job.name}</td>
+                            </g:if>
                             <g:if test="${grailsApplication.config.getProperty("quartz.monitor.showTriggerNames", Boolean, true)}">
                                 <td>${job.trigger?.name}</td>
                             </g:if>
