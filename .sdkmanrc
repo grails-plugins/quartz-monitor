@@ -2,4 +2,4 @@
 # Add key=value pairs of SDKs to use below
 java=17.0.13-zulu
 gradle=8.10
-groovy=4.0.23
+groovy=4.0.24
