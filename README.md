@@ -1,3 +1,11 @@
+## Branches/Versions
+
+| Branch | Grails Version |
+|--------|----------------|
+| 2.0.x  | 5              |
+| 3.0.x  | 6              |
+| 4.0.x  | 7              |
+
 #Quartz Monitor Plugin for Grails
 
 Allows you to view and administer all your Quartz jobs in one place.
