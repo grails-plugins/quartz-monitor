@@ -1,3 +1,10 @@
+## Branches/Versions
+
+| Branch | Grails Version |
+|--------|----------------|
+| 2.0.x  | 5              |
+| 3.0.x  | 6              |
+| 4.0.x  | 7              |
 
 This is a Fork of [James Cookie](https://github.com/jamescookie/quartz-monitor) Grails Quatz Monitor plugin.
 
